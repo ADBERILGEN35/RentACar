@@ -3,44 +3,34 @@ package developer.rentACar.business.concretes;
 import developer.rentACar.business.abstracts.BrandService;
 import developer.rentACar.business.requests.CreateBrandRequest;
 import developer.rentACar.business.responses.GetAllBrandsResponse;
+import developer.rentACar.core.utlities.mappers.ModelMapperService;
 import developer.rentACar.dataAccess.abstracts.BrandRepository;
 import developer.rentACar.entities.concretes.Brand;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class BrandManager implements BrandService {
-
     private BrandRepository brandRepository;
-
-    @Autowired
-    public BrandManager(BrandRepository brandRepository) {
-        this.brandRepository = brandRepository;
-    }
+    private ModelMapperService modelMapperService;
 
     @Override
     public List<GetAllBrandsResponse> getAll() {
         List<Brand> brands = brandRepository.findAll();
-        List<GetAllBrandsResponse> brandsResponse = new ArrayList<GetAllBrandsResponse>();
-
-        for (Brand brand : brands) {
-            GetAllBrandsResponse responseItem = new GetAllBrandsResponse();
-            responseItem.setId(brand.getId());
-            responseItem.setName(brand.getName());
-
-            brandsResponse.add(responseItem);
-        }
+        List<GetAllBrandsResponse> brandsResponse = brands.stream()
+                .map(br -> this.modelMapperService.forResponse()
+                        .map(br, GetAllBrandsResponse.class)).collect(Collectors.toList());
 
         return brandsResponse;
     }
 
     @Override
     public void add(CreateBrandRequest createBrandRequest) {
-        Brand brand = new Brand();
-        brand.setName(createBrandRequest.getName());
+        Brand brand = this.modelMapperService.forRequest().map(createBrandRequest, Brand.class);
         this.brandRepository.save(brand);
     }
 }
