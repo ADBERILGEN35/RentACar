@@ -2,7 +2,9 @@ package developer.rentACar.business.concretes;
 
 import developer.rentACar.business.abstracts.BrandService;
 import developer.rentACar.business.requests.CreateBrandRequest;
+import developer.rentACar.business.requests.UpdateBrandRequest;
 import developer.rentACar.business.responses.GetAllBrandsResponse;
+import developer.rentACar.business.responses.GetByIdBrandResonse;
 import developer.rentACar.core.utlities.mappers.ModelMapperService;
 import developer.rentACar.dataAccess.abstracts.BrandRepository;
 import developer.rentACar.entities.concretes.Brand;
@@ -29,8 +31,27 @@ public class BrandManager implements BrandService {
     }
 
     @Override
+    public GetByIdBrandResonse getById(int id) {
+        Brand brand = this.brandRepository.findById(id).orElseThrow();
+        GetByIdBrandResonse resonse = this.modelMapperService.forResponse()
+                .map(brand, GetByIdBrandResonse.class);
+        return resonse;
+    }
+
+    @Override
     public void add(CreateBrandRequest createBrandRequest) {
         Brand brand = this.modelMapperService.forRequest().map(createBrandRequest, Brand.class);
         this.brandRepository.save(brand);
+    }
+
+    @Override
+    public void update(UpdateBrandRequest updateBrandRequest) {
+        Brand brand = this.modelMapperService.forRequest().map(updateBrandRequest, Brand.class);
+        this.brandRepository.save(brand);
+    }
+
+    @Override
+    public void delete(int id) {
+        brandRepository.deleteById(id);
     }
 }
