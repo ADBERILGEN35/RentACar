@@ -5,6 +5,7 @@ import developer.rentACar.business.requests.CreateBrandRequest;
 import developer.rentACar.business.requests.UpdateBrandRequest;
 import developer.rentACar.business.responses.GetAllBrandsResponse;
 import developer.rentACar.business.responses.GetByIdBrandResonse;
+import developer.rentACar.business.rules.BrandBusinessRules;
 import developer.rentACar.core.utlities.mappers.ModelMapperService;
 import developer.rentACar.dataAccess.abstracts.BrandRepository;
 import developer.rentACar.entities.concretes.Brand;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class BrandManager implements BrandService {
     private BrandRepository brandRepository;
     private ModelMapperService modelMapperService;
+    private BrandBusinessRules brandBusinessRules;
 
     @Override
     public List<GetAllBrandsResponse> getAll() {
@@ -40,6 +42,8 @@ public class BrandManager implements BrandService {
 
     @Override
     public void add(CreateBrandRequest createBrandRequest) {
+        this.brandBusinessRules.checkIfBrandNameExists(createBrandRequest.getName());
+
         Brand brand = this.modelMapperService.forRequest().map(createBrandRequest, Brand.class);
         this.brandRepository.save(brand);
     }
